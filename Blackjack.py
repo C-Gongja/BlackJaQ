@@ -144,6 +144,10 @@ def player_hit():
             # Output Card To Screen
             global player_image1, player_image2, player_image3, player_image4, player_image5
 
+            # TODO: crop two card images, create new picture of cropped images side by side, and display it
+            # resources:
+                # crop image: https://stackoverflow.com/questions/52375035/cropping-an-image-in-tkinter
+                # create new from cropped: https://stackoverflow.com/questions/30227466/combine-several-images-horizontally-with-python
             if player_spot == 0:
                 # Resize Card
                 player_image1 = resize_cards(f'cards/{player_card}.png')
@@ -277,6 +281,9 @@ player_label_1.grid(row=1, column=0, pady=20, padx=20)
 
 player_label_2 = Label(player_frame, text='')
 player_label_2.grid(row=1, column=1, pady=20, padx=20)
+
+#player_label_2 = Label(player_frame, text='')
+#player_label_2.grid(row=1, column=1, pady=20, padx=20)
 
 player_label_3 = Label(player_frame, text='')
 player_label_3.grid(row=1, column=2, pady=20, padx=20)
