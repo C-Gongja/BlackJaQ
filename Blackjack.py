@@ -4,12 +4,12 @@ from PIL import Image, ImageTk
 
 root = Tk()
 root.title('BlackJaQ - Card Deck')
-#root.iconbitmap('c:/gui/codemy.ico')
 root.geometry("1200x800")
 root.configure(background="green")
 
-
+# ---------------
 # Resize Cards
+# ---------------
 def resize_cards(card):
     # Open the image
     our_card_img = Image.open(card)
@@ -24,8 +24,9 @@ def resize_cards(card):
     # Return that card
     return our_card_image
 
-
+# -----------------
 # Shuffle The Cards
+# -----------------
 def shuffle():
     # Clear all the old cards from previous games
     dealer_label_1.config(image='')
@@ -69,7 +70,9 @@ def shuffle():
     # Put number of remaining cards in title bar
     root.title(f'BlackJaQ - {len(deck)} Cards Left')
 
-
+# ------------------------------
+# Dealer's turn if player stands
+# ------------------------------
 def dealer_hit():
     global dealer_spot
     if dealer_spot < 5:
@@ -120,12 +123,14 @@ def dealer_hit():
                 dealer_spot += 1
 
             # Put number of remaining cards in title bar
-            root.title(f'Codemy.com - {len(deck)} Cards Left')
+            root.title(f'BlackJaQ - {len(deck)} Cards Left')
 
         except:
-            root.title(f'Codemy.com - No Cards In Deck')
+            root.title(f'BlackJaQ - No Cards In Deck')
 
-
+# ---------------------------
+# Player demands another card
+# ---------------------------
 def player_hit():
     global player_spot
     if player_spot < 5:
@@ -176,13 +181,35 @@ def player_hit():
                 player_spot += 1
 
             # Put number of remaining cards in title bar
-            root.title(f'Codemy.com - {len(deck)} Cards Left')
+            root.title(f'BlackJaQ - {len(deck)} Cards Left')
 
         except:
-            root.title(f'Codemy.com - No Cards In Deck')
+            root.title(f'BlackJaQ - No Cards In Deck')
 
+# -------------------------------------------------------------
+# Collapse the superposition of the previous card (not current)
+# -------------------------------------------------------------
+def collapse():
+    card_button.configure(text = "Hit Me!", command = player_hit)
+    stand_button.configure(text = "Stand", command = stand)
 
+# ------------------------------------------------------------
+# Entangle current two cards according to their superpositions
+# ------------------------------------------------------------
+def entangle():
+    card_button.configure(text="Hit Me!", command=player_hit)
+    stand_button.configure(text = "Stand", command = stand)
+
+# -------------------------------------------------------------------------
+# Player stands. All superpositions are collapsed, turn is handed to dealer
+# -------------------------------------------------------------------------
+def stand():
+    card_button.configure(text="Collapse", command=collapse)
+    stand_button.configure(text = "Entangle!", command = entangle)
+
+# --------------
 # Deal Out Cards
+# --------------
 def deal_cards():
     try:
         # Get the dealer Card
@@ -210,12 +237,14 @@ def deal_cards():
         # player_label.config(text=card)
 
         # Put number of remaining cards in title bar
-        root.title(f'Codemy.com - {len(deck)} Cards Left')
+        root.title(f'BlackJaQ - {len(deck)} Cards Left')
 
     except:
-        root.title(f'Codemy.com - No Cards In Deck')
+        root.title(f'BlackJaQ - No Cards In Deck')
 
-
+# --------------------------------------
+# --------------- GUI ------------------
+# --------------------------------------
 my_frame = Frame(root, bg="green")
 my_frame.pack(pady=20)
 
@@ -262,14 +291,14 @@ player_label_5.grid(row=1, column=4, pady=20, padx=20)
 button_frame = Frame(root, bg="green")
 button_frame.pack(pady=20)
 
-# Create a couple buttons
+# Create buttons
 shuffle_button = Button(button_frame, text="Shuffle Deck", font=("Helvetica", 14), command=shuffle)
 shuffle_button.grid(row=0, column=0)
 
-card_button = Button(button_frame, text="Hit Me!", font=("Helvetica", 14), command=player_hit)
+card_button = Button(button_frame, text="Collapse", font=("Helvetica", 14), command=collapse)
 card_button.grid(row=0, column=1, padx=10)
 
-stand_button = Button(button_frame, text="Stand!", font=("Helvetica", 14))
+stand_button = Button(button_frame, text = "Entangle!", font=("Helvetica", 14), command = entangle)
 stand_button.grid(row=0, column=2)
 
 # Shuffle Deck On Start
