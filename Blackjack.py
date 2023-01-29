@@ -28,6 +28,7 @@ def resize_cards(card):
 # Shuffle The Cards
 # -----------------
 def shuffle():
+    global superpos_count
     # Clear all the old cards from previous games
     dealer_label_1.config(image='')
     dealer_label_2.config(image='')
@@ -40,6 +41,8 @@ def shuffle():
     player_label_3.config(image='')
     player_label_4.config(image='')
     player_label_5.config(image='')
+
+    superpos_count = 0
 
     # Define Our Deck
     suits = ["diamonds", "clubs", "hearts", "spades"]
@@ -54,9 +57,10 @@ def shuffle():
             deck.append(f'{value}_of_{suit}')
 
     # Create our players
-    global dealer, player, dealer_spot, player_spot
+    global dealer, player, dealer_spot, player_spot, player_card, superpos
     dealer = []
     player = []
+    superpos = []
     dealer_spot = 0
     player_spot = 0
 
@@ -132,53 +136,54 @@ def dealer_hit():
 # Player demands another card
 # ---------------------------
 def player_hit():
+    card_button.configure(text="Collapse", command=collapse)
+    stand_button.configure(text="Entangle!", command=entangle)
+    global superpos_count
     global player_spot
+    global player_card
     if player_spot < 5:
         try:
             # Get the player Card
-            player_card = random.choice(deck)
-            # Remove Card From Deck
-            deck.remove(player_card)
+            create_superposition()
+            player_card = f'superposition_{player_spot}.png'
+            #player_card = random.choice(deck)
+
             # Append Card To Dealer List
-            player.append(player_card)
+            #player.append(player_card)
             # Output Card To Screen
             global player_image1, player_image2, player_image3, player_image4, player_image5
 
-            # TODO: crop two card images, create new picture of cropped images side by side, and display it
-            # resources:
-                # crop image: https://stackoverflow.com/questions/52375035/cropping-an-image-in-tkinter
-                # create new from cropped: https://stackoverflow.com/questions/30227466/combine-several-images-horizontally-with-python
             if player_spot == 0:
                 # Resize Card
-                player_image1 = resize_cards(f'cards/{player_card}.png')
+                player_image1 = resize_cards(player_card)
                 # Output Card To Screen
                 player_label_1.config(image=player_image1)
                 # Increment our player spot counter
                 player_spot += 1
             elif player_spot == 1:
                 # Resize Card
-                player_image2 = resize_cards(f'cards/{player_card}.png')
+                player_image2 = resize_cards(player_card)
                 # Output Card To Screen
                 player_label_2.config(image=player_image2)
                 # Increment our player spot counter
                 player_spot += 1
             elif player_spot == 2:
                 # Resize Card
-                player_image3 = resize_cards(f'cards/{player_card}.png')
+                player_image3 = resize_cards(player_card)
                 # Output Card To Screen
                 player_label_3.config(image=player_image3)
                 # Increment our player spot counter
                 player_spot += 1
             elif player_spot == 3:
                 # Resize Card
-                player_image4 = resize_cards(f'cards/{player_card}.png')
+                player_image4 = resize_cards(player_card)
                 # Output Card To Screen
                 player_label_4.config(image=player_image4)
                 # Increment our player spot counter
                 player_spot += 1
             elif player_spot == 4:
                 # Resize Card
-                player_image5 = resize_cards(f'cards/{player_card}.png')
+                player_image5 = resize_cards(player_card)
                 # Output Card To Screen
                 player_label_5.config(image=player_image5)
                 # Increment our player spot counter
@@ -194,8 +199,32 @@ def player_hit():
 # Collapse the superposition of the previous card (not current)
 # -------------------------------------------------------------
 def collapse():
+    global superpos
+    global player_card
+    global player_spot
+    global player_image_1, player_image_2, player_image_3, player_image_4, player_image_5
     card_button.configure(text = "Hit Me!", command = player_hit)
     stand_button.configure(text = "Stand", command = stand)
+
+    player_card = random.choice(superpos)
+    player.append(player_card)
+
+    if player_spot == 2:
+        player_image_1 = resize_cards(player_card)
+        player_label_1.config(image=player_image_1)
+    elif player_spot == 3:
+        player_image_2 = resize_cards(player_card)
+        player_label_2.config(image=player_image_2)
+    elif player_spot == 4:
+        player_image_3 = resize_cards(player_card)
+        player_label_3.config(image=player_image_3)
+    elif player_spot == 5:
+        player_image_4 = resize_cards(player_card)
+        player_label_4.config(image=player_image_4)
+
+
+
+
 
 # ------------------------------------------------------------
 # Entangle current two cards according to their superpositions
@@ -210,6 +239,39 @@ def entangle():
 def stand():
     card_button.configure(text="Collapse", command=collapse)
     stand_button.configure(text = "Entangle!", command = entangle)
+
+def create_superposition():
+    global superpos_count
+    global superpos_img
+    global superpos
+    superpos = [f'cards/{random.choice(deck)}.png', f'cards/{random.choice(deck)}.png']
+
+    imgs = [Image.open(i) for i in superpos]
+
+    #Get image dimensions
+    w, h = imgs[0].size
+
+    #Define cropping bounds
+    left = 0
+    right = w
+    upper1 = 0
+    lower1 = h / 2
+    upper2 = h / 2
+    lower2 = h
+
+    #Crop both images
+    imgs[0] = imgs[0].crop([left, upper1, right, lower1])
+    imgs[1] = imgs[1].crop([left, upper2, right, lower2])
+
+    #Make new image
+    img_merge = Image.new(imgs[0].mode, (w, h))
+    y = 0
+    for img in imgs:
+        img_merge.paste(img, (0, y))
+        y += img.height
+    img_merge.save(f'superposition_{superpos_count}.png')
+    superpos_count += 1
+
 
 # --------------
 # Deal Out Cards
@@ -282,8 +344,6 @@ player_label_1.grid(row=1, column=0, pady=20, padx=20)
 player_label_2 = Label(player_frame, text='')
 player_label_2.grid(row=1, column=1, pady=20, padx=20)
 
-#player_label_2 = Label(player_frame, text='')
-#player_label_2.grid(row=1, column=1, pady=20, padx=20)
 
 player_label_3 = Label(player_frame, text='')
 player_label_3.grid(row=1, column=2, pady=20, padx=20)
