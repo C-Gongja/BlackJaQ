@@ -16,7 +16,7 @@ def resize_cards(card):
     our_card_img = Image.open(card)
 
     # Resize The Image
-    our_card_resize_image = our_card_img.resize((150, 218))
+    our_card_resize_image = our_card_img.resize((75, 109))
 
     # output the card
     global our_card_image
@@ -42,6 +42,12 @@ def shuffle():
     player_label_3.config(image='')
     player_label_4.config(image='')
     player_label_5.config(image='')
+
+    player_label_11.config(image='')
+    player_label_21.config(image='')
+    player_label_31.config(image='')
+    player_label_41.config(image='')
+    player_label_51.config(image='')
 
     card_button.config(state="active")
     stand_button.config(state="active")
@@ -224,6 +230,7 @@ def collapse():
 
     player_card = random.choice(superpos[player_spot - 2])
     player.append(player_card)
+    #deck.remove(player_card)
 
     pcard_s = player_card.split("_", 1)[0]
     pcard = int(pcard_s.split("/", 1)[1])
@@ -258,6 +265,54 @@ def collapse():
 def entangle():
     card_button.configure(text="Hit Me!", command=player_hit)
     stand_button.configure(text = "Stand", command = stand)
+
+    global player_image_1, player_image_2, player_image_3, player_image_4, player_image_5
+    global player_image_11, player_image_21, player_image_31, player_image_41, player_image_51
+    global superpos, player_spot
+
+    card1 = superpos[player_spot - 2][0]
+    card11 = superpos[player_spot - 2][1]
+    card2 = superpos[player_spot - 1][0]
+    card21 = superpos[player_spot - 1][1]
+
+    if player_spot == 2:
+        player_image_1 = resize_cards(card1)
+        player_label_1.config(image=player_image_1)
+        player_image_11 = resize_cards(card11)
+        player_label_11.config(image=player_image_11)
+        player_image_2 = resize_cards(card2)
+        player_label_2.config(image=player_image_2)
+        player_image_21 = resize_cards(card21)
+        player_label_21.config(image=player_image_21)
+    elif player_spot == 3:
+        player_image_2 = resize_cards(card1)
+        player_label_2.config(image=player_image_2)
+        player_image_21 = resize_cards(card11)
+        player_label_21.config(image=player_image_21)
+        player_image_3 = resize_cards(card2)
+        player_label_3.config(image=player_image_3)
+        player_image_31 = resize_cards(card21)
+        player_label_31.config(image=player_image_31)
+    elif player_spot == 4:
+        player_image_3 = resize_cards(card1)
+        player_label_3.config(image=player_image_3)
+        player_image_31 = resize_cards(card11)
+        player_label_31.config(image=player_image_31)
+        player_image_4 = resize_cards(card2)
+        player_label_4.config(image=player_image_4)
+        player_image_41 = resize_cards(card21)
+        player_label_41.config(image=player_image_41)
+    elif player_spot == 5:
+        player_image_4 = resize_cards(card1)
+        player_label_4.config(image=player_image_4)
+        player_image_41 = resize_cards(card11)
+        player_label_41.config(image=player_image_41)
+        player_image_5 = resize_cards(card2)
+        player_label_5.config(image=player_image_5)
+        player_image_51 = resize_cards(card21)
+        player_label_51.config(image=player_image_51)
+
+
 
 # -------------------------------------------------------------------------
 # Player stands. All superpositions are collapsed, turn is handed to dealer
@@ -410,6 +465,24 @@ player_label_4.grid(row=1, column=3, pady=20, padx=20)
 
 player_label_5 = Label(player_frame, text='')
 player_label_5.grid(row=1, column=4, pady=20, padx=20)
+
+#Entanglement Row
+player_label_11 = Label(player_frame, text='')
+player_label_11.grid(row=2, column=0, pady=20, padx=20)
+
+player_label_21 = Label(player_frame, text='')
+player_label_21.grid(row=2, column=1, pady=20, padx=20)
+
+
+player_label_31 = Label(player_frame, text='')
+player_label_31.grid(row=2, column=2, pady=20, padx=20)
+
+player_label_41 = Label(player_frame, text='')
+player_label_41.grid(row=2, column=3, pady=20, padx=20)
+
+player_label_51 = Label(player_frame, text='')
+player_label_51.grid(row=2, column=4, pady=20, padx=20)
+
 
 # Create Button Frame
 button_frame = Frame(root, bg="green")
