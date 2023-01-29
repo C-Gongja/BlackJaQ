@@ -206,7 +206,7 @@ def collapse():
     card_button.configure(text = "Hit Me!", command = player_hit)
     stand_button.configure(text = "Stand", command = stand)
 
-    player_card = random.choice(superpos)
+    player_card = random.choice(superpos[player_spot - 2])
     player.append(player_card)
 
     if player_spot == 2:
@@ -244,9 +244,10 @@ def create_superposition():
     global superpos_count
     global superpos_img
     global superpos
-    superpos = [f'cards/{random.choice(deck)}.png', f'cards/{random.choice(deck)}.png']
+    global player_spot
+    superpos.append([f'cards/{random.choice(deck)}.png', f'cards/{random.choice(deck)}.png'])
 
-    imgs = [Image.open(i) for i in superpos]
+    imgs = [Image.open(i) for i in superpos[player_spot]]
 
     #Get image dimensions
     w, h = imgs[0].size
