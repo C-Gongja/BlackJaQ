@@ -16,7 +16,7 @@ def resize_cards(card):
     our_card_img = Image.open(card)
 
     # Resize The Image
-    our_card_resize_image = our_card_img.resize((75, 109))
+    our_card_resize_image = our_card_img.resize((120, 180))
 
     # output the card
     global our_card_image
@@ -163,6 +163,7 @@ def player_hit():
     global superpos_count
     global player_spot
     global player_card
+    
     if player_spot < 5:
         try:
             # Get the player Card
@@ -225,35 +226,77 @@ def collapse():
     global player_card
     global player_spot, player_score
     global player_image_1, player_image_2, player_image_3, player_image_4, player_image_5
+    global player_image_11, player_image_21, player_image_31, player_image_41, player_image_51
     card_button.configure(text = "Hit Me!", command = player_hit)
     stand_button.configure(text = "Stand", command = stand)
+    
+    if(entangcount != 0) :
+        try:
+            player_card = random.choice(superpos[entangcount - 2])
+            player.append(player_card)
 
-    player_card = random.choice(superpos[player_spot - 2])
-    player.append(player_card)
-    #deck.remove(player_card)
+            pcard_s = player_card.split("_", 1)[0]
+            pcard = int(pcard_s.split("/", 1)[1])
+            print(pcard)
+            if pcard == 14:
+                pcard = 11
+            elif pcard == 11 or pcard == 12 or pcard == 13:
+                pcard = 10
 
-    pcard_s = player_card.split("_", 1)[0]
-    pcard = int(pcard_s.split("/", 1)[1])
-    print(pcard)
-    if pcard == 14:
-        pcard = 11
-    elif pcard == 11 or pcard == 12 or pcard == 13:
-        pcard = 10
+            player_score += pcard
 
-    player_score += pcard
+            if player_spot == 2:
+                player_image_1 = resize_cards(player_card)
+                player_label_1.config(image=player_image_1)
+                player_label_11.config(image='')
+                player_label_21.config(image='')
 
-    if player_spot == 2:
-        player_image_1 = resize_cards(player_card)
-        player_label_1.config(image=player_image_1)
-    elif player_spot == 3:
-        player_image_2 = resize_cards(player_card)
-        player_label_2.config(image=player_image_2)
-    elif player_spot == 4:
-        player_image_3 = resize_cards(player_card)
-        player_label_3.config(image=player_image_3)
-    elif player_spot == 5:
-        player_image_4 = resize_cards(player_card)
-        player_label_4.config(image=player_image_4)
+            elif player_spot == 3:
+                player_image_2 = resize_cards(player_card)
+                player_label_2.config(image=player_image_2)
+                player_label_11.config(image='')
+                player_label_21.config(image='')
+                player_label_31.config(image='')
+
+            elif player_spot == 4:
+                player_image_3 = resize_cards(player_card)
+                player_label_3.config(image=player_image_3)
+                player_label_11.config(image='')
+                player_label_21.config(image='')
+                player_label_31.config(image='')
+                player_label_41.config(image='')
+
+            elif player_spot == 5:
+                player_image_4 = resize_cards(player_card)
+                player_label_4.config(image=player_image_4)
+
+            #deck.remove(player_card)
+        except:
+            player_card = random.choice(superpos[entangcount - 2])
+            player.append(player_card)
+            pcard_s = player_card.split("_", 1)[0]
+            pcard = int(pcard_s.split("/", 1)[1])
+            print(pcard)
+            if pcard == 14:
+                pcard = 11
+            elif pcard == 11 or pcard == 12 or pcard == 13:
+                pcard = 10
+
+            player_score += pcard
+
+            if player_spot == 2:
+                player_image_1 = resize_cards(player_card)
+                player_label_1.config(image=player_image_1)
+
+            elif player_spot == 3:
+                player_image_2 = resize_cards(player_card)
+                player_label_2.config(image=player_image_2)
+            elif player_spot == 4:
+                player_image_3 = resize_cards(player_card)
+                player_label_3.config(image=player_image_3)
+            elif player_spot == 5:
+                player_image_4 = resize_cards(player_card)
+                player_label_4.config(image=player_image_4)
 
 
 
@@ -263,12 +306,14 @@ def collapse():
 # Entangle current two cards according to their superpositions
 # ------------------------------------------------------------
 def entangle():
-    card_button.configure(text="Hit Me!", command=player_hit)
+    card_button.configure(text="Hit Me!", command = player_hit)
     stand_button.configure(text = "Stand", command = stand)
 
     global player_image_1, player_image_2, player_image_3, player_image_4, player_image_5
     global player_image_11, player_image_21, player_image_31, player_image_41, player_image_51
     global superpos, player_spot
+    global entangcount
+    entangcount = 0
 
     card1 = superpos[player_spot - 2][0]
     card11 = superpos[player_spot - 2][1]
@@ -284,6 +329,7 @@ def entangle():
         player_label_2.config(image=player_image_2)
         player_image_21 = resize_cards(card21)
         player_label_21.config(image=player_image_21)
+        entangcount = player_spot
     elif player_spot == 3:
         player_image_2 = resize_cards(card1)
         player_label_2.config(image=player_image_2)
@@ -293,6 +339,7 @@ def entangle():
         player_label_3.config(image=player_image_3)
         player_image_31 = resize_cards(card21)
         player_label_31.config(image=player_image_31)
+        entangcount = player_spot
     elif player_spot == 4:
         player_image_3 = resize_cards(card1)
         player_label_3.config(image=player_image_3)
@@ -302,6 +349,7 @@ def entangle():
         player_label_4.config(image=player_image_4)
         player_image_41 = resize_cards(card21)
         player_label_41.config(image=player_image_41)
+        entangcount = player_spot
     elif player_spot == 5:
         player_image_4 = resize_cards(card1)
         player_label_4.config(image=player_image_4)
@@ -311,6 +359,7 @@ def entangle():
         player_label_5.config(image=player_image_5)
         player_image_51 = resize_cards(card21)
         player_label_51.config(image=player_image_51)
+        entangcount = player_spot
 
 
 
