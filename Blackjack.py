@@ -1,6 +1,7 @@
 from tkinter import *
 import random
 from PIL import Image, ImageTk
+from tkinter import messagebox
 
 root = Tk()
 root.title('BlackJaQ - Card Deck')
@@ -42,6 +43,9 @@ def shuffle():
     player_label_4.config(image='')
     player_label_5.config(image='')
 
+    card_button.config(state="active")
+    stand_button.config(state="active")
+
     superpos_count = 0
 
     # Define Our Deck
@@ -57,12 +61,15 @@ def shuffle():
             deck.append(f'{value}_of_{suit}')
 
     # Create our players
-    global dealer, player, dealer_spot, player_spot, player_card, superpos
+    global dealer, player, dealer_spot, player_spot, player_card, superpos, dealer_score, player_score, stand_bool
     dealer = []
     player = []
     superpos = []
     dealer_spot = 0
     player_spot = 0
+    dealer_score = 0
+    player_score = 0
+    stand_bool = 0
 
     # Shuffle Two Cards for player and dealer
     dealer_hit()
@@ -78,7 +85,7 @@ def shuffle():
 # Dealer's turn if player stands
 # ------------------------------
 def dealer_hit():
-    global dealer_spot
+    global dealer_spot, dealer_score
     if dealer_spot < 5:
         try:
             # Get the player Card
@@ -87,6 +94,15 @@ def dealer_hit():
             deck.remove(dealer_card)
             # Append Card To Dealer List
             dealer.append(dealer_card)
+
+            dcard = int(dealer_card.split("_", 1)[0])
+            if dcard == 14:
+                dcard = 11
+            elif dcard == 11 or dcard == 12 or dcard == 13:
+                dcard = 10
+
+            dealer_score += dcard
+
             # Output Card To Screen
             global dealer_image1, dealer_image2, dealer_image3, dealer_image4, dealer_image5
 
@@ -201,13 +217,23 @@ def player_hit():
 def collapse():
     global superpos
     global player_card
-    global player_spot
+    global player_spot, player_score
     global player_image_1, player_image_2, player_image_3, player_image_4, player_image_5
     card_button.configure(text = "Hit Me!", command = player_hit)
     stand_button.configure(text = "Stand", command = stand)
 
     player_card = random.choice(superpos[player_spot - 2])
     player.append(player_card)
+
+    pcard_s = player_card.split("_", 1)[0]
+    pcard = int(pcard_s.split("/", 1)[1])
+    print(pcard)
+    if pcard == 14:
+        pcard = 11
+    elif pcard == 11 or pcard == 12 or pcard == 13:
+        pcard = 10
+
+    player_score += pcard
 
     if player_spot == 2:
         player_image_1 = resize_cards(player_card)
@@ -239,6 +265,36 @@ def entangle():
 def stand():
     card_button.configure(text="Collapse", command=collapse)
     stand_button.configure(text = "Entangle!", command = entangle)
+
+    global player_score, dealer_score, player_spot, stand_bool
+
+    if (stand_bool == 0):
+        player_spot += 1
+        collapse()
+        stand_bool = 1
+
+
+    card_button.config(state="disabled")
+    stand_button.config(state="disabled")
+
+    if dealer_score >= 17:
+        if dealer_score > 21:
+            # bust
+            messagebox.showinfo("Player Wins!!", f"Player Wins!  Dealer: {dealer_score}  Player: {player_score}")
+        elif dealer_score == player_score:
+            # tie
+            messagebox.showinfo("Tie!!", f"It's a Tie!!  Dealer: {dealer_score}  Player: {player_score}")
+        elif dealer_score > player_score:
+            # dealer wins
+            messagebox.showinfo("Dealer Wins!!", f"Dealer Wins!  Dealer: {dealer_score}  Player: {player_score}")
+        else:
+            # player wins
+            messagebox.showinfo("Player Wins!!", f"Player Wins!  Dealer: {dealer_score}  Player: {player_score}")
+    else:
+        # Add card to dealer
+        dealer_hit()
+        # Recalculate
+        stand()
 
 def create_superposition():
     global superpos_count
