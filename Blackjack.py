@@ -67,7 +67,7 @@ def shuffle():
             deck.append(f'{value}_of_{suit}')
 
     # Create our players
-    global dealer, player, dealer_spot, player_spot, player_card, superpos, dealer_score, player_score, stand_bool
+    global dealer, player, dealer_spot, player_spot, player_card, superpos, dealer_score, player_score, stand_bool, entangle_num, player_aces, dealer_aces  
     dealer = []
     player = []
     superpos = []
@@ -76,6 +76,9 @@ def shuffle():
     dealer_score = 0
     player_score = 0
     stand_bool = 0
+    entangle_num = 0 
+    player_aces = 0 
+    dealer_aces = 0 
 
     # Shuffle Two Cards for player and dealer
     dealer_hit()
@@ -92,6 +95,7 @@ def shuffle():
 # ------------------------------
 def dealer_hit():
     global dealer_spot, dealer_score
+    global dealer_aces 
     if dealer_spot < 5:
         try:
             # Get the player Card
@@ -104,10 +108,15 @@ def dealer_hit():
             dcard = int(dealer_card.split("_", 1)[0])
             if dcard == 14:
                 dcard = 11
+                dealer_aces += 1
             elif dcard == 11 or dcard == 12 or dcard == 13:
                 dcard = 10
 
             dealer_score += dcard
+            if dealer_score > 21 and dealer_aces > 0: 
+                dealer_score -= 10 
+                dealer_aces -= 1 
+            
 
             # Output Card To Screen
             global dealer_image1, dealer_image2, dealer_image3, dealer_image4, dealer_image5
@@ -225,22 +234,31 @@ def collapse():
     global player_card
     global player_spot, player_score
     global player_image_1, player_image_2, player_image_3, player_image_4, player_image_5
+    global entangle_num
+    global player_aces 
     card_button.configure(text = "Hit Me!", command = player_hit)
     stand_button.configure(text = "Stand", command = stand)
-
-    player_card = random.choice(superpos[player_spot - 2])
-    player.append(player_card)
-    #deck.remove(player_card)
-
-    pcard_s = player_card.split("_", 1)[0]
-    pcard = int(pcard_s.split("/", 1)[1])
-    print(pcard)
-    if pcard == 14:
-        pcard = 11
-    elif pcard == 11 or pcard == 12 or pcard == 13:
-        pcard = 10
-
-    player_score += pcard
+    x = 0 ##(iterator)
+    rand = random.randint(0,1)
+    while x <= entangle_num: 
+        player_card = superpos[player_spot - entangle_num + x - 2][rand] 
+        player.append(player_card)
+        pcard_s = player_card.split("_", 1)[0]
+        pcard = int(pcard_s.split("/", 1)[1])
+        if pcard == 14:
+            pcard = 11
+            player_aces += 1 
+        elif pcard == 11 or pcard == 12 or pcard == 13:
+            pcard = 10
+        player_score += pcard
+        if player_score > 21 and player_aces > 0: 
+            player_score -= 10 
+            player_aces -= 1 
+        x += 1 
+        
+    
+    entangle_num = 0 
+   
 
     if player_spot == 2:
         player_image_1 = resize_cards(player_card)
@@ -265,11 +283,15 @@ def collapse():
 def entangle():
     card_button.configure(text="Hit Me!", command=player_hit)
     stand_button.configure(text = "Stand", command = stand)
+    
+   
 
     global player_image_1, player_image_2, player_image_3, player_image_4, player_image_5
     global player_image_11, player_image_21, player_image_31, player_image_41, player_image_51
-    global superpos, player_spot
+    global superpos, player_spot, entangle_num 
 
+    entangle_num += 1 
+    
     card1 = superpos[player_spot - 2][0]
     card11 = superpos[player_spot - 2][1]
     card2 = superpos[player_spot - 1][0]
@@ -331,8 +353,10 @@ def stand():
 
     card_button.config(state="disabled")
     stand_button.config(state="disabled")
-
-    if dealer_score >= 17:
+    if player_score > 21:
+        # Player Busts
+        messagebox.showinfo("Dealer Wins!!", f"Dealer Wins! Player: {player_score}")## NEW
+    elif dealer_score >= 17:
         if dealer_score > 21:
             # bust
             messagebox.showinfo("Player Wins!!", f"Player Wins!  Dealer: {dealer_score}  Player: {player_score}")
