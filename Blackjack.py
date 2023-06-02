@@ -162,7 +162,6 @@ def dealer_hit():
 
         except:
             root.title(f'BlackJaQ - No Cards In Deck')
-
 # ---------------------------
 # Player demands another card
 # ---------------------------
@@ -225,7 +224,9 @@ def player_hit():
 
         except:
             root.title(f'BlackJaQ - No Cards In Deck')
-
+    else:
+        messagebox.showinfo("Out of space!",f"No card slots remaining, automatic stand!")
+        stand()
 # -------------------------------------------------------------
 # Collapse the superposition of the previous card (not current)
 # -------------------------------------------------------------
@@ -235,11 +236,12 @@ def collapse():
     global player_spot, player_score
     global player_image_1, player_image_2, player_image_3, player_image_4, player_image_5
     global entangle_num
-    global player_aces 
+    global player_aces
+    global stand_bool
     card_button.configure(text = "Hit Me!", command = player_hit)
     stand_button.configure(text = "Stand", command = stand)
     x = 0 ##(iterator)
-    rand = random.randint(0,1)
+    rand = random.randint(0,1) ## top or bottom we choose
     while x <= entangle_num: 
         player_card = superpos[player_spot - entangle_num + x - 2][rand] 
         player.append(player_card)
@@ -252,12 +254,11 @@ def collapse():
             pcard = 10
         player_score += pcard
         if player_score > 21 and player_aces > 0: 
-            player_score -= 10 
-            player_aces -= 1 
+                player_score -= 10 
+                player_aces -= 1 
+       
         x += 1 
-        
     
-    entangle_num = 0 
    
 
     if player_spot == 2:
@@ -272,6 +273,13 @@ def collapse():
     elif player_spot == 5:
         player_image_4 = resize_cards(player_card)
         player_label_4.config(image=player_image_4)
+    
+    entangle_num = 0 
+    
+    if player_score > 21 and stand_bool == 0:
+        messagebox.showinfo("Dealer loses!",f"Collapsed cards total over 21, automatic stand!")
+        stand_bool = 1
+        stand()
 
 
 
@@ -343,7 +351,7 @@ def stand():
     card_button.configure(text="Collapse", command=collapse)
     stand_button.configure(text = "Entangle!", command = entangle)
 
-    global player_score, dealer_score, player_spot, stand_bool
+    global player_score, dealer_score, player_spot, dealer_spot, stand_bool
 
     if (stand_bool == 0):
         player_spot += 1
@@ -355,7 +363,7 @@ def stand():
     stand_button.config(state="disabled")
     if player_score > 21:
         # Player Busts
-        messagebox.showinfo("Dealer Wins!!", f"Dealer Wins! Player: {player_score}")## NEW
+        messagebox.showinfo("Dealer Wins!!", f"Dealer Wins! Player: {player_score}")
     elif dealer_score >= 17:
         if dealer_score > 21:
             # bust
@@ -370,8 +378,9 @@ def stand():
             # player wins
             messagebox.showinfo("Player Wins!!", f"Player Wins!  Dealer: {dealer_score}  Player: {player_score}")
     else:
-        # Add card to dealer
-        dealer_hit()
+        if dealer_spot < 5: 
+            # Add card to dealer
+            dealer_hit()
         # Recalculate
         stand()
 
@@ -380,8 +389,16 @@ def create_superposition():
     global superpos_img
     global superpos
     global player_spot
-    superpos.append([f'cards/{random.choice(deck)}.png', f'cards/{random.choice(deck)}.png'])
-
+    superpos1 = random.choice(deck) 
+            # Remove Card From Deck
+    deck.remove(superpos1) 
+            
+    superpos2 = random.choice(deck) 
+    # Remove Card From Deck
+    deck.remove(superpos2)
+    
+    superpos.append([f'cards/{superpos1}.png', f'cards/{superpos2}.png']) 
+    
     imgs = [Image.open(i) for i in superpos[player_spot]]
 
     #Get image dimensions
