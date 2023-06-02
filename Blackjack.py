@@ -1,5 +1,6 @@
 from tkinter import *
 import random
+import time
 from PIL import Image, ImageTk
 from tkinter import messagebox
 
@@ -67,7 +68,7 @@ def shuffle():
             deck.append(f'{value}_of_{suit}')
 
     # Create our players
-    global dealer, player, dealer_spot, player_spot, player_card, superpos, dealer_score, player_score, stand_bool, entangle_num, player_aces, dealer_aces  
+    global dealer, player, dealer_spot, player_spot, player_card, superpos, dealer_score, player_score, stand_bool, entangle_num, player_aces, dealer_aces, player_stands  
     dealer = []
     player = []
     superpos = []
@@ -79,6 +80,7 @@ def shuffle():
     entangle_num = 0 
     player_aces = 0 
     dealer_aces = 0 
+    player_stands = False
 
     # Shuffle Two Cards for player and dealer
     dealer_hit()
@@ -113,7 +115,7 @@ def dealer_hit():
                 dcard = 10
 
             dealer_score += dcard
-            if dealer_score > 21 and dealer_aces > 0: 
+            while dealer_score > 21 and dealer_aces > 0:  
                 dealer_score -= 10 
                 dealer_aces -= 1 
             
@@ -253,31 +255,35 @@ def collapse():
         elif pcard == 11 or pcard == 12 or pcard == 13:
             pcard = 10
         player_score += pcard
-        if player_score > 21 and player_aces > 0: 
-                player_score -= 10 
-                player_aces -= 1 
-       
+        while player_score > 21 and player_aces > 0:
+            player_score -= 10 
+            player_aces -= 1 
+        if player_spot - entangle_num + x == 2: 
+            player_image_1 = resize_cards(player_card)
+            player_label_1.config(image=player_image_1)
+            player_label_11.config(image='')
+        elif player_spot - entangle_num + x == 3:
+            player_image_2 = resize_cards(player_card)
+            player_label_2.config(image=player_image_2)
+            player_label_21.config(image='')
+        elif player_spot - entangle_num + x == 4:
+            player_image_3 = resize_cards(player_card)
+            player_label_3.config(image=player_image_3)
+            player_label_31.config(image='')
+        elif player_spot - entangle_num + x == 5:
+            player_image_4 = resize_cards(player_card)
+            player_label_4.config(image=player_image_4)
+            player_label_41.config(image='')
+        elif player_spot - entangle_num + x == 6:
+            player_image_5 = resize_cards(player_card)
+            player_label_5.config(image=player_image_5)
+            player_label_51.config(image='')
         x += 1 
-    
-   
-
-    if player_spot == 2:
-        player_image_1 = resize_cards(player_card)
-        player_label_1.config(image=player_image_1)
-    elif player_spot == 3:
-        player_image_2 = resize_cards(player_card)
-        player_label_2.config(image=player_image_2)
-    elif player_spot == 4:
-        player_image_3 = resize_cards(player_card)
-        player_label_3.config(image=player_image_3)
-    elif player_spot == 5:
-        player_image_4 = resize_cards(player_card)
-        player_label_4.config(image=player_image_4)
     
     entangle_num = 0 
     
-    if player_score > 21 and stand_bool == 0:
-        messagebox.showinfo("Dealer loses!",f"Collapsed cards total over 21, automatic stand!")
+    if player_score > 21 and player_stands == False:
+        messagebox.showinfo("Player loses!",f"Collapsed cards total over 21, automatic stand!")
         stand_bool = 1
         stand()
 
@@ -351,38 +357,48 @@ def stand():
     card_button.configure(text="Collapse", command=collapse)
     stand_button.configure(text = "Entangle!", command = entangle)
 
-    global player_score, dealer_score, player_spot, dealer_spot, stand_bool
-
+    global player_score, dealer_score, player_spot, dealer_spot, stand_bool, player_stands
+    player_stands = True
     if (stand_bool == 0):
         player_spot += 1
         collapse()
         stand_bool = 1
 
-
+    # time.sleep(0.25) ## This is an attempt to make the image show before the message, but it doesn't work
+    # When there's something nonsense here the message doesn't show but the cards collapse, but when there's 
+    #anything that run shere the message shows before cards collapse??? I don't know why...
+    
     card_button.config(state="disabled")
     stand_button.config(state="disabled")
     if player_score > 21:
         # Player Busts
+        
         messagebox.showinfo("Dealer Wins!!", f"Dealer Wins! Player: {player_score}")
     elif dealer_score >= 17:
         if dealer_score > 21:
             # bust
+            
             messagebox.showinfo("Player Wins!!", f"Player Wins!  Dealer: {dealer_score}  Player: {player_score}")
         elif dealer_score == player_score:
             # tie
+            
             messagebox.showinfo("Tie!!", f"It's a Tie!!  Dealer: {dealer_score}  Player: {player_score}")
         elif dealer_score > player_score:
             # dealer wins
+            
             messagebox.showinfo("Dealer Wins!!", f"Dealer Wins!  Dealer: {dealer_score}  Player: {player_score}")
         else:
             # player wins
+            
             messagebox.showinfo("Player Wins!!", f"Player Wins!  Dealer: {dealer_score}  Player: {player_score}")
+        print("message has been shown")
     else:
         if dealer_spot < 5: 
             # Add card to dealer
             dealer_hit()
         # Recalculate
         stand()
+        
 
 def create_superposition():
     global superpos_count
